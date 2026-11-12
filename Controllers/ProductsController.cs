@@ -15,6 +15,27 @@ public class ProductsController:ControllerBase
     {
         _context = context;
     }
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Product>> GetProductById(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+        return Ok(product);
+    }
+    [HttpPost]
+    public async Task<ActionResult<Product>> CreateProduct(
+        [FromBody]Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+        return CreatedAtAction(
+            nameof(GetProductById),
+            new { id = product.ProductId },
+            product);
+    }
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
