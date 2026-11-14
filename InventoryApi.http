@@ -13,3 +13,15 @@ Content-Type: application/json
   "stock": 18,
   "category": "Accessories"
 }
+
+###
+
+DELETE http://localhost:5230/api/products/7
+Content-Type: application/json
+
+{
+    "productName": "Webcam",
+    "price": 3000,
+    "stock": 20,
+    "category": "Accessories"
+}
