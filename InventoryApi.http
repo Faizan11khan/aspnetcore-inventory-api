@@ -25,3 +25,25 @@ Content-Type: application/json
     "stock": 20,
     "category": "Accessories"
 }
+###
+
+GET http://localhost:5230/api/products/filter?category=Electronics&minPrice=10000
+
+###
+
+GET http://localhost:5230/api/products/search?name=Lap
+
+### Get Cheapest Product
+GET http://localhost:5230/api/products/cheapest
+
+### Sort Products by Highest Price
+GET http://localhost:5230/api/products/sort-by-price
+
+### Pagination - Page 1
+GET http://localhost:5230/api/products/paged?pageNumber=1&pageSize=2
+
+### Pagination - Page 2
+GET http://localhost:5230/api/products/paged?pageNumber=2&pageSize=2
+
+### Invalid Pagination
+GET http://localhost:5230/api/products/paged?pageNumber=0&pageSize=100
