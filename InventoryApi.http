@@ -8,10 +8,10 @@ POST http://localhost:5230/api/products
 Content-Type: application/json
 
 {
-  "productName": "Webcam",
-  "price": 2500,
-  "stock": 18,
-  "category": "Accessories"
+    "productName": "",
+    "price": -500,
+    "stock": -10,
+    "category": "Electronics"
 }
 
 ###

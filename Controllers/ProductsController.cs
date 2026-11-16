@@ -2,6 +2,7 @@
 using InventoryApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using InventoryApi.DTOs;
 
 namespace InventoryApi.Controllers;
 
@@ -27,14 +28,25 @@ public class ProductsController : ControllerBase
     }
     [HttpPost]
     public async Task<ActionResult<Product>> CreateProduct(
-        [FromBody] Product product)
+    [FromBody] ProductCreateDto request)
     {
+        var product = new Product
+        {
+            ProductName = request.ProductName,
+            Price = request.Price,
+            Stock = request.Stock,
+            Category = request.Category
+        };
+
         _context.Products.Add(product);
+
         await _context.SaveChangesAsync();
+
         return CreatedAtAction(
             nameof(GetProductById),
             new { id = product.ProductId },
-            product);
+            product
+        );
     }
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProduct(int id,
