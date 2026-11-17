@@ -47,3 +47,41 @@ GET http://localhost:5230/api/products/paged?pageNumber=2&pageSize=2
 
 ### Invalid Pagination
 GET http://localhost:5230/api/products/paged?pageNumber=0&pageSize=100
+
+### Get All Products
+GET {{InventoryApi_HostAddress}}/api/products
+Accept: application/json
+
+###
+
+### Get Product By ID
+GET {{InventoryApi_HostAddress}}/api/products/1
+Accept: application/json
+
+###
+
+### Update Product - Valid Data
+PUT {{InventoryApi_HostAddress}}/api/products/1
+Content-Type: application/json
+
+{
+    "productName": "Gaming Laptop",
+    "price": 75000,
+    "stock": 20,
+    "category": "Electronics"
+}
+
+###
+
+### Update Product - Invalid Data
+PUT {{InventoryApi_HostAddress}}/api/products/1
+Content-Type: application/json
+
+{
+    "productName": "",
+    "price": -500,
+    "stock": -10,
+    "category": "Electronics"
+}
+
+###

@@ -17,13 +17,26 @@ public class ProductsController : ControllerBase
         _context = context;
     }
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<Product>> GetProductById(int id)
+    public async Task<ActionResult<ProductResponseDto>> GetProductById(int id)
     {
-        var product = await _context.Products.FindAsync(id);
+        var product = await _context.Products
+            .AsNoTracking()
+            .Where(p => p.ProductId == id)
+            .Select(p => new ProductResponseDto
+            {
+                ProductId = p.ProductId,
+                ProductName = p.ProductName,
+                Price = p.Price,
+                Stock = p.Stock,
+                Category = p.Category
+            })
+            .FirstOrDefaultAsync();
+
         if (product == null)
         {
             return NotFound();
         }
+
         return Ok(product);
     }
     [HttpPost]
@@ -49,18 +62,21 @@ public class ProductsController : ControllerBase
         );
     }
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateProduct(int id,
-        [FromBody] Product updatedProduct)
+    public async Task<IActionResult> UpdateProduct(
+    int id,
+    [FromBody] ProductUpdateDto request)
     {
         var existingProduct = await _context.Products.FindAsync(id);
+
         if (existingProduct == null)
         {
             return NotFound();
         }
-        existingProduct.ProductName = updatedProduct.ProductName;
-        existingProduct.Price = updatedProduct.Price;
-        existingProduct.Stock = updatedProduct.Stock;
-        existingProduct.Category = updatedProduct.Category;
+
+        existingProduct.ProductName = request.ProductName;
+        existingProduct.Price = request.Price;
+        existingProduct.Stock = request.Stock;
+        existingProduct.Category = request.Category;
 
         await _context.SaveChangesAsync();
 
@@ -81,7 +97,17 @@ public class ProductsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
     {
-        var products = await _context.Products.ToListAsync();
+        var products = await _context.Products
+    .AsNoTracking()
+    .Select(p => new ProductResponseDto
+    {
+        ProductId = p.ProductId,
+        ProductName = p.ProductName,
+        Price = p.Price,
+        Stock = p.Stock,
+        Category = p.Category
+    })
+    .ToListAsync();
         return Ok(products);
     }
     [HttpGet("find-by-name")]
