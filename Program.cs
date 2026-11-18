@@ -1,5 +1,8 @@
 using InventoryApi.Data;
 using Microsoft.EntityFrameworkCore;
+using InventoryApi.Services;
+using InventoryApi.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +13,7 @@ builder.Services.AddDbContext<InventoryDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
