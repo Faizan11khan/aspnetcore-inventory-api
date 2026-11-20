@@ -3,6 +3,7 @@ using InventoryApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using InventoryApi.DTOs;
+using InventoryApi.Interfaces;  
 
 namespace InventoryApi.Controllers;
 
@@ -11,26 +12,20 @@ namespace InventoryApi.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly InventoryDbContext _context;
+    private readonly IProductService _productService;
 
-    public ProductsController(InventoryDbContext context)
+    public ProductsController(
+        InventoryDbContext context,
+        IProductService productService)
     {
         _context = context;
+        _productService = productService;
     }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProductResponseDto>> GetProductById(int id)
     {
-        var product = await _context.Products
-            .AsNoTracking()
-            .Where(p => p.ProductId == id)
-            .Select(p => new ProductResponseDto
-            {
-                ProductId = p.ProductId,
-                ProductName = p.ProductName,
-                Price = p.Price,
-                Stock = p.Stock,
-                Category = p.Category
-            })
-            .FirstOrDefaultAsync();
+        var product = await _productService.GetProductByIdAsync(id);
 
         if (product == null)
         {
@@ -40,20 +35,10 @@ public class ProductsController : ControllerBase
         return Ok(product);
     }
     [HttpPost]
-    public async Task<ActionResult<Product>> CreateProduct(
-    [FromBody] ProductCreateDto request)
+    public async Task<ActionResult<ProductResponseDto>> CreateProduct(
+     [FromBody] ProductCreateDto request)
     {
-        var product = new Product
-        {
-            ProductName = request.ProductName,
-            Price = request.Price,
-            Stock = request.Stock,
-            Category = request.Category
-        };
-
-        _context.Products.Add(product);
-
-        await _context.SaveChangesAsync();
+        var product = await _productService.CreateProductAsync(request);
 
         return CreatedAtAction(
             nameof(GetProductById),
@@ -63,51 +48,35 @@ public class ProductsController : ControllerBase
     }
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProduct(
-    int id,
-    [FromBody] ProductUpdateDto request)
+      int id,
+      [FromBody] ProductUpdateDto request)
     {
-        var existingProduct = await _context.Products.FindAsync(id);
+        var updated = await _productService.UpdateProductAsync(id, request);
 
-        if (existingProduct == null)
+        if (!updated)
         {
             return NotFound();
         }
-
-        existingProduct.ProductName = request.ProductName;
-        existingProduct.Price = request.Price;
-        existingProduct.Stock = request.Stock;
-        existingProduct.Category = request.Category;
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {
-        var product = await _context.Products.FindAsync(id);
-        if (product == null)
+        var deleted = await _productService.DeleteProductAsync(id);
+
+        if (!deleted)
         {
             return NotFound();
         }
-        _context.Products.Remove(product);
-        await _context.SaveChangesAsync();
+
         return NoContent();
     }
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProducts()
     {
-        var products = await _context.Products
-    .AsNoTracking()
-    .Select(p => new ProductResponseDto
-    {
-        ProductId = p.ProductId,
-        ProductName = p.ProductName,
-        Price = p.Price,
-        Stock = p.Stock,
-        Category = p.Category
-    })
-    .ToListAsync();
+        var products = await _productService.GetAllProductsAsync();
+
         return Ok(products);
     }
     [HttpGet("find-by-name")]
